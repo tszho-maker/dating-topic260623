@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error.exe</title>
+    <style>
+        body {
+            font-family: "MS Sans Serif", "Microsoft YaHei", Tahoma, sans-serif;
+            background: #008080;
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+        }
+        .win95-window {
+            background: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #808080;
+            border-bottom: 2px solid #808080;
+            box-shadow: 4px 4px 0 #000000;
+            width: 100%;
+            max-width: 460px;
+            margin: 30px auto;
+            overflow: hidden;
+        }
+        .title-bar {
+            background: linear-gradient(to right, #000080, #1084d0);
+            color: white;
+            padding: 3px 6px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            cursor: move;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+            background: #c0c0c0;
+            border-top: 2px solid #ffffff;
+        }
+        #topic {
+            font-size: 21px;
+            line-height: 1.4;
+            min-height: 160px;
+            background: #ffffff;
+            border: 2px inset #c0c0c0;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 2px 2px 0 #808080;
+        }
+        button {
+            font-family: "MS Sans Serif";
+            font-size: 15px;
+            padding: 10px 24px;
+            margin: 8px;
+            background: #c0c0c0;
+            border-top: 2px solid #ffffff;
+            border-left: 2px solid #ffffff;
+            border-right: 2px solid #808080;
+            border-bottom: 2px solid #808080;
+            cursor: pointer;
+            min-width: 180px;
+        }
+        button:disabled {
+            background: #808080;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .spicy-btn { 
+            background: #ffcccc; 
+            border-color: #ff6666;
+            color: #990000;
+        }
+        .warning-text {
+            margin-top: 25px;
+            font-size: 15px;
+            color: #990000;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+        #countdown {
+            font-size: 18px;
+            color: #ff0000;
+            font-weight: bold;
+            margin: 10px 0;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="win95-window">
+        <div class="title-bar">
+            <span>Welcome</span>
+            <div>
+                <span>－</span>
+                <span>□</span>
+                <span>×</span>
+            </div>
+        </div>
+        <div class="content">
+            <div id="topic">準備就緒</div>
+            <div id="countdown"></div>
+            
+            <button id="normalBtn" onclick="drawNormalTopic()">🟦 正常人點這裡</button>
+            <button id="spicyBtn" class="spicy-btn" onclick="drawSpicyTopic()">🔥 發神經點這裡</button>
+            
+            <div class="warning-text">
+                抽中什么都不許打臉 ⚠️ ⚠️ 
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let canClick = true;
+        const countdownEl = document.getElementById("countdown");
+
+        // 正常話題 (50個)
+        const normalTopics = [ /* 這裡保留你之前的50個正常話題 */ 
+            "如果你有隱形一天，你最想做什麼荒唐事？",
+            "有機會的話，你會想嘗試什麽工作？",
+            "你在戀愛中偏理性還是感性？",
+            "如果你是動物，你覺得自己會是哪種？",
+            "你有什麼明明很普通但超愛的東西？",
+            "你是會比較一見鍾情的人嗎？",
+            "你會享受獨處嗎？",
+            "如果中了500萬，第一件事要做什麼？",
+            "你理想中的周末是怎麼過的？",
+            "你是一個注重儀式感的人嗎？",
+            "你最想去哪個國家旅行？為什麼？",
+            "你相信“命中注定”還是“事在人爲”？",
+            "你小時候做過最叛逆的事是什麼？",
+            "你最害怕的東西是什麼？為什麼？",
+            "哪種人你完全不想打交道",
+            "最近讓你感動的一件事是什麼？",
+            "如果你能和任何一個人共進晚餐，你會選誰？",
+            "你最喜歡的季節是哪一個？為什麼？",
+            "你有什麼夢想是還沒實現的？",
+            "你喜歡海，還是山？",
+            "你最喜歡的童年回憶是什麼？",
+            "如果你能改變過去的一件事，會是什麼？",
+            "你平時喜歡怎麼放鬆？",
+            "你有什麼奇怪的飲食習慣嗎？",
+            "最近學到最有用的一件事是什麼？",
+            "你覺得什麼樣的約會最有意思？",
+            "你有養寵物的經驗嗎？最有趣的事是？",
+            "你最喜歡的音樂類型是什麼？",
+            "如果你能擁有任何超能力，你會選什麼？",
+            "你有什麼「人生必做清單」上的項目嗎？",
+            "你最喜歡的早餐是什麼？",
+            "你有沒有什麼「一輩子想做但還沒做」的事？",
+            "你覺得自己運氣好還是壞？",
+            "最近讓你壓力最大的事情是什麼？",
+            "你有沒有什麼奇怪的夢境反覆出現？",
+            "你最喜歡的顏色是什麼？為什麼？",
+            "你小時候的夢想是什麼？現在還一樣嗎？",
+            "你喜歡自駕游嗎？",
+            "如果你能回到高中，你會做什麼不一樣的事？",
+            "如果有一年完全自由的假期，你會如何規劃？",
+            "回家第一件事你會做什麽？",
+            "你覺得自己是早起型還是夜貓型？",
+            "最近發現的讓你快樂的小事是什麼？",
+            "手機裏哪個APP你刷得最多？",
+            "你最想和誰交換一天人生？",
+            "你有沒有什麼收藏的奇怪物品？",
+            "你覺得什麼樣的人最有魅力？",
+            "你最近有什麼新習慣嗎？",
+            "如果你能學會任何一項技能，你會選什麼？"
+        ];
+
+        // 刺激話題 (50個)
+        const spicyTopics = [ /* 這裡保留你之前的50個刺激話題 */ 
+            "你有過最尷尬的約會或床上失誤是什麼？",
+            "你最瘋狂的一次一夜情經歷是什麼？",
+            "你有什麼不能告訴別人的性癖好？",
+            "你覺得自己身材哪個部位最性感？",
+            "喝醉後你做過最荒唐的性相關的事是什麼？",
+            "你有沒有差一點就出軌的經歷？",
+            "你最喜歡的親密姿勢或方式是什麼？",
+            "你有過最離譜的性幻想是什麼？",
+            "你覺得前任在床上哪一點最讓你難忘？",
+            "如果現在可以和任何一個人發生關係，你會選誰？",
+            "你有沒有在公共場合做過很刺激的事？",
+            "你最喜歡被怎麼樣的語言挑逗？",
+            "你有過多人運動的經驗嗎？",
+            "你最敏感的部位是哪裡？",
+            "你有沒有用過玩具或道具的經驗？",
+            "你覺得做愛最重要的是什麼？",
+            "你有沒有在旅行中發生過艷遇？",
+            "你最喜歡什麼樣的前戲？",
+            "你有沒有偷看過別人做愛？",
+            "你覺得自己性慾算強還是弱？",
+            "你有沒有在車裡做過？",
+            "你最喜歡在什麼地方做愛？",
+            "你有沒有被別人偷拍過私密影片？",
+            "你對SM或特殊玩法有興趣嗎？",
+            "你有沒有同時和兩個人保持關係的經歷？",
+            "你最喜歡看什麼類型的成人影片？",
+            "你有沒有在職場發生過曖昧或關係？",
+            "你最想嘗試但還沒試過的玩法是什麼？",
+            "你有沒有被前任報復式分手後的經歷？",
+            "你覺得自己床上技術如何？有什麼想改進的嗎？",
+            "你有沒有在朋友聚會後發生過什麼？",
+            "你最喜歡被怎麼樣觸摸？",
+            "你有沒有幻想過和認識的人發生關係？",
+            "你做愛時最常幻想什麼？",
+            "你有沒有在酒店發生過刺激的事？",
+            "你對三人行或更多有興趣嗎？",
+            "你有沒有被綁起來玩過？",
+            "你最喜歡什麼樣的角色扮演？",
+            "你有沒有在野外做過？",
+            "你覺得自己哪方面最會撩人？",
+            "你有沒有錄過自己的私密影片？",
+            "你最享受被支配還是支配別人？",
+            "你有沒有因為太刺激而笑場的經驗？",
+            "你對開放式關係怎麼看？",
+            "你有沒有和年紀差很多的人發生過關係？",
+            "你最喜歡在什麼時候做愛？",
+            "你有沒有因為性而影響到工作的經歷？",
+            "你覺得自己高潮類型是什麼？",
+            "你有沒有和陌生人發生過一夜情？",
+            "你最想被怎麼樣誇獎在床上？"
+        ];
+
+        function startCountdown() {
+            canClick = false;
+            let timeLeft = 5;
+            countdownEl.textContent = `等待 ${timeLeft} 秒後可再次抽取...`;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    countdownEl.textContent = `等待 ${timeLeft} 秒後可再次抽取...`;
+                } else {
+                    clearInterval(timer);
+                    countdownEl.textContent = "";
+                    canClick = true;
+                }
+            }, 1000);
+        }
+
+        function drawNormalTopic() {
+            if (!canClick) return;
+            const randomIndex = Math.floor(Math.random() * normalTopics.length);
+            document.getElementById("topic").innerHTML = `<strong>${normalTopics[randomIndex]}</strong>`;
+            startCountdown();
+        }
+
+        function drawSpicyTopic() {
+            if (!canClick) return;
+            const randomIndex = Math.floor(Math.random() * spicyTopics.length);
+            document.getElementById("topic").innerHTML = `<strong>${spicyTopics[randomIndex]}</strong>`;
+            startCountdown();
+        }
+    </script>
+</body>
+</html>
